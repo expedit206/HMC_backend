@@ -42,24 +42,51 @@ class FormationController extends Controller
             ], 422);
         }
 
-        // Simulate payment/transaction
-        Transaction::create([
+        // Initialize NotchPay payment
+        $notchPayService = app(\App\Services\NotchPayService::class);
+        $reference = 'FM_' . $user->id . '_' . time();
+
+        $transaction = Transaction::create([
             'user_id' => $user->id,
+            'reference' => $reference,
+            'type' => 'payment',
             'amount' => $formation->price,
-            'type' => 'debit',
-            'description' => "Achat de la formation: {$formation->title}",
-            'status' => 'completed'
+            'currency' => 'XAF',
+            'status' => 'pending',
+            'payment_method' => 'momo', // Default fallback
+            'metadata' => [
+                'action' => 'buy_formation',
+                'formation_id' => $formation->id,
+                'description' => "Achat de la formation: {$formation->title}"
+            ]
         ]);
 
-        $user->formations()->attach($formation->id, [
-            'status' => 'purchased',
-            'progress' => 0
-        ]);
+        try {
+            $payment = $notchPayService->initializePayment([
+                'amount' => $formation->price,
+                'email' => $user->email,
+                'reference' => $reference,
+                'description' => "Achat de la formation: {$formation->title}",
+                'metadata' => [
+                    'action' => 'buy_formation',
+                    'formation_id' => $formation->id
+                ]
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Paiement effectué et formation débloquée.'
-        ]);
+            return response()->json([
+                'success' => true,
+                'redirect_url' => $payment->authorization_url,
+                'reference' => $reference,
+                'message' => 'Paiement initialisé avec succès.'
+            ]);
+        } catch (\Exception $e) {
+            // Delete pending transaction if init fails
+            $transaction->delete();
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'initialisation du paiement'
+            ], 500);
+        }
     }
 
     public function show(Request $request, Formation $formation)

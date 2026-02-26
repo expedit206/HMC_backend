@@ -18,6 +18,8 @@ use App\Http\Controllers\Api\FormationController;
 |--------------------------------------------------------------------------
 */
 
+use App\Http\Controllers\Api\PaymentController;
+
 // Public Routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
@@ -28,6 +30,9 @@ Route::get('/home', [HomeController::class, 'index']);
 Route::get('/marketplace/items', [MarketplaceController::class, 'index']);
 Route::get('/marketplace/items/{id}', [MarketplaceController::class, 'show']);
 Route::get('/marketplace/categories', [MarketplaceController::class, 'categories']);
+
+// NotchPay Callback Route
+Route::get('/notchpay/callback', [PaymentController::class, 'callback'])->name('notchpay.callback');
 
 // Protected Routes
 Route::middleware('auth:sanctum')->group(function () {
