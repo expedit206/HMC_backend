@@ -86,6 +86,7 @@ Route::middleware('auth:sanctum')->group(function (): void {
         // Phase 1 : Visites
         Route::get('/visits',                [ProspectController::class, 'myVisits']);
         Route::post('/visits',               [ProspectController::class, 'bookVisit']);
+        Route::post('/visits/{id}/pay',      [ProspectController::class, 'payVisitFee']);
         Route::post('/visits/{id}/confirm',  [ProspectController::class, 'confirmVisit']);
         Route::post('/visits/{id}/cancel',   [ProspectController::class, 'cancelVisit']);
 

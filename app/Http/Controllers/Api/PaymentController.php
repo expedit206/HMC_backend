@@ -28,7 +28,7 @@ class PaymentController extends Controller
         $frontendUrl = env('FRONTEND_URL', 'http://localhost:5173');
 
         if (! $reference) {
-            return redirect($frontendUrl.'/payment?status=error&message=reference_missing');
+            return redirect($frontendUrl . '/payment?status=error&message=reference_missing');
         }
 
         try {
@@ -37,7 +37,7 @@ class PaymentController extends Controller
             $transaction = Transaction::where('reference', $reference)->first();
 
             if (! $transaction) {
-                return redirect($frontendUrl.'/payment?status=error&message=transaction_not_found');
+                return redirect($frontendUrl . '/payment?status=error&message=transaction_not_found');
             }
 
             $user = $transaction->user;
@@ -54,22 +54,21 @@ class PaymentController extends Controller
                     $this->fulfillOrder($transaction);
                 }
 
-                return redirect($frontendUrl.'/payment?status=success&reference='.$reference);
+                return redirect($frontendUrl . '/payment?status=success&reference=' . $reference);
             } else {
                 $transaction->update([
                     'status' => 'failed',
                 ]);
 
-                return redirect($frontendUrl.'/payment?status=failed&reference='.$reference);
+                return redirect($frontendUrl . '/payment?status=failed&reference=' . $reference);
             }
-
         } catch (\Exception $e) {
             Log::error('Erreur callback NotchPay:', [
                 'reference' => $reference,
                 'error' => $e->getMessage(),
             ]);
 
-            return redirect($frontendUrl.'/payment?status=error&message=processing_error');
+            return redirect($frontendUrl . '/payment?status=error&message=processing_error');
         }
     }
 
@@ -100,10 +99,32 @@ class PaymentController extends Controller
 
                     break;
 
-                    // Add other switch cases for rentals, marketplace, etc.
+                case 'visit_fee':
+                    $visitId = $metadata['visit_id'];
+                    $visit = \App\Models\Visit::find($visitId);
+                    if ($visit) {
+                        $visit->update([
+                            'fee_payment_status' => 'paid',
+                            'fee_payment_method' => 'notchpay',
+                        ]);
+                    }
+                    break;
+
+                case 'rental_payment':
+                    $rentalId = $metadata['rental_id'];
+                    $rental = \App\Models\Rental::find($rentalId);
+                    if ($rental) {
+                        $rental->update([
+                            'payment_phase_status' => 'paid',
+                            'payment_method' => 'notchpay',
+                        ]);
+                    }
+                    break;
+
+                    // Add other switch cases for marketplace, etc.
             }
         } catch (\Exception $e) {
-            Log::error('Fulfill order error: '.$e->getMessage());
+            Log::error('Fulfill order error: ' . $e->getMessage());
         }
     }
 }

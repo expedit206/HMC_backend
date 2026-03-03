@@ -63,6 +63,23 @@ class User extends Authenticatable
         'roles' => 'array',
     ];
 
+    protected $appends = ['avatar_url'];
+
+    public function getAvatarUrlAttribute()
+    {
+        if ($this->avatar) {
+            return asset('storage/' . $this->avatar);
+        }
+
+        if ($this->role === 'agent') {
+            // Assign a consistent image based on ID
+            $num = ($this->id % 4) + 1;
+            return asset('storage/user_profil/agent' . $num . '.jpg');
+        }
+
+        return asset('images/avatar/default.png');
+    }
+
     /**
      * Check if user has a specific role in their roles list.
      */

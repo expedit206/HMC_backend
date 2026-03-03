@@ -52,7 +52,7 @@ class HomeController extends Controller
             ->with(['owner', 'primaryImage'])
             ->take(10)
             ->get()
-            ->map(fn ($property) => [
+            ->map(fn($property) => [
                 'id' => $property->id,
                 'title' => $property->title,
                 'price' => $property->price,
@@ -69,7 +69,7 @@ class HomeController extends Controller
         $agents = User::where('role', 'agent')
             ->take(4)
             ->get()
-            ->map(function ($agent) {
+            ->map(function ($agent, $index) {
                 // Get count of properties for this agent
                 $propertiesCount = Property::where('user_id', $agent->id)->count();
 
@@ -82,7 +82,7 @@ class HomeController extends Controller
                     'propertiesCount' => $propertiesCount,
                     'rating' => 4.9,
                     'reviews' => 10,
-                    'image' => $agent->avatar ?? '/images/avatar/default.png',
+                    'image' => asset('storage/user_profil/agent' . (($index % 4) + 1) . '.jpg'),
                 ];
             });
 
@@ -92,7 +92,7 @@ class HomeController extends Controller
             ->latest()
             ->take(6)
             ->get()
-            ->map(fn ($service) => [
+            ->map(fn($service) => [
                 'id' => $service->id,
                 'title' => $service->title ?? 'Service',
                 'subtitle' => $service->category ? $service->category->name : 'Service',
@@ -105,7 +105,7 @@ class HomeController extends Controller
         $products = Product::latest()
             ->take(5)
             ->get()
-            ->map(fn ($product) => [
+            ->map(fn($product) => [
                 'id' => $product->id,
                 'name' => $product->name,
                 'price' => $product->price,

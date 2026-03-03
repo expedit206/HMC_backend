@@ -147,6 +147,60 @@ class ProspectController extends Controller
         return response()->json(['success' => true, 'message' => 'Visite annulée.']);
     }
 
+    /**
+     * Payer les frais de visite via NotchPay.
+     * POST /api/prospect/visits/{id}/pay
+     */
+    public function payVisitFee(Request $request, int $visitId): JsonResponse
+    {
+        $user  = $request->user();
+        $visit = Visit::where('id', $visitId)
+            ->where('user_id', $user->id)
+            ->where('fee_payment_status', 'pending')
+            ->firstOrFail();
+
+        $notchPayService = app(\App\Services\NotchPayService::class);
+        $reference = 'VISIT_' . $visit->id . '_' . time();
+
+        \App\Models\Transaction::create([
+            'user_id' => $user->id,
+            'reference' => $reference,
+            'type' => 'payment',
+            'amount' => $visit->visit_fee,
+            'currency' => 'XAF',
+            'status' => 'pending',
+            'metadata' => [
+                'action' => 'visit_fee',
+                'visit_id' => $visit->id,
+            ],
+        ]);
+
+        try {
+            $paymentToken = $notchPayService->initializePayment([
+                'amount' => $visit->visit_fee,
+                'email' => $user->email,
+                'reference' => $reference,
+                'description' => "Frais de visite pour le bien: {$visit->property->title}",
+                'metadata' => [
+                    'action' => 'visit_fee',
+                    'visit_id' => $visit->id,
+                ],
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'redirect_url' => $paymentToken->authorization_url,
+                'reference' => $reference,
+                'message' => 'Paiement initialisé.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'initialisation du paiement: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
     // ══════════════════════════════════════════════════════════════════════════
     // PHASE 2 : DOSSIER DE CANDIDATURE
     // ══════════════════════════════════════════════════════════════════════════
@@ -368,27 +422,53 @@ class ProspectController extends Controller
     {
         $user = $request->user();
 
-        $rental = Rental::where('tenant_id', $user->id)
+        $rental = Rental::with('property')
+            ->where('tenant_id', $user->id)
             ->where('payment_phase_status', 'pending')
             ->findOrFail($rentalId);
 
-        $request->validate([
-            'payment_method' => 'required|string|in:om,momo,card,transfer',
-            'phone'          => 'nullable|string',
+        $totalAmount = $rental->advance_amount + $rental->caution_amount;
+
+        $notchPayService = app(\App\Services\NotchPayService::class);
+        $reference = 'RENTAL_' . $rental->id . '_' . time();
+
+        \App\Models\Transaction::create([
+            'user_id' => $user->id,
+            'reference' => $reference,
+            'type' => 'payment',
+            'amount' => $totalAmount,
+            'currency' => 'XAF',
+            'status' => 'pending',
+            'metadata' => [
+                'action' => 'rental_payment',
+                'rental_id' => $rental->id,
+            ],
         ]);
 
-        // Simuler la transaction
-        $rental->update([
-            'payment_phase_status' => 'paid',
-        ]);
+        try {
+            $paymentToken = $notchPayService->initializePayment([
+                'amount' => $totalAmount,
+                'email' => $user->email,
+                'reference' => $reference,
+                'description' => "Paiement initial pour la location: {$rental->property->title}",
+                'metadata' => [
+                    'action' => 'rental_payment',
+                    'rental_id' => $rental->id,
+                ],
+            ]);
 
-        // Optionnel : Enregistrer la transaction dans la table payments si elle existe
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Paiement soumis avec succès. L\'agent validera votre paiement sous peu.',
-            'data'    => $rental->fresh()
-        ]);
+            return response()->json([
+                'success' => true,
+                'redirect_url' => $paymentToken->authorization_url,
+                'reference' => $reference,
+                'message' => 'Paiement initialisé.',
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erreur lors de l\'initialisation du paiement: ' . $e->getMessage(),
+            ], 500);
+        }
     }
 
     // ══════════════════════════════════════════════════════════════════════════
