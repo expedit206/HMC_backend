@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\PropertyController;
 use App\Http\Controllers\Api\RentalApplicationController;
 use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TenantController;
+use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VisiteController;
 
 /*
@@ -47,6 +48,13 @@ Route::middleware('auth:sanctum')->group(function (): void {
 
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', [AuthController::class, 'user']);
+
+    // ── Gestion du Profil Utilisateur (Centralisé) ───────────────────────────
+    Route::prefix('profile')->group(function () {
+        Route::put('/', [UserController::class, 'updateProfile']);
+        Route::post('/avatar', [UserController::class, 'updateAvatar']);
+        Route::post('/password', [UserController::class, 'changePassword']);
+    });
 
     // ── Gestion des Rôles ────────────────────────────────────────────────────
     Route::get('/roles', [RoleController::class, 'index']);

@@ -45,7 +45,14 @@ class CheckPendingTransactions extends Command
             $status = $notchPayService->checkAndFulfillTransaction($transaction->reference);
 
             if ($status === 'reference_not_found') {
-                $this->warn("Result for {$transaction->reference}: NOT FOUND in NotchPay (Reference invalid)");
+                // Si la transaction n'existe pas chez NotchPay et qu'elle a été créée il y a plus de 15 minutes
+                // On peut considérer qu'elle est invalide (échec d'initialisation par ex.)
+                if ($transaction->created_at->diffInMinutes(now()) > 15) {
+                    $transaction->update(['status' => 'failed']);
+                    $this->warn("Result for {$transaction->reference}: NOT FOUND (Marked as FAILED - cleanup)");
+                } else {
+                    $this->warn("Result for {$transaction->reference}: NOT FOUND (Too recent, skipping cleanup)");
+                }
             } elseif ($status === 'error') {
                 $this->error("Result for {$transaction->reference}: API ERROR during check");
             } else {
