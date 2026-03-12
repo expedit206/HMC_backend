@@ -65,7 +65,7 @@ class AdminController extends Controller
         $query = User::query();
 
         if ($request->has('role')) {
-            $query->where('role', $request->role);
+            $query->whereJsonContains('roles', $request->role);
         }
 
         if ($request->has('search')) {
@@ -341,8 +341,8 @@ class AdminController extends Controller
 
         $visit = Visit::findOrFail($visitId);
         $agent = User::where('id', $request->agent_id)
-            ->where('role', 'agent')
-            ->firstOr(fn() => null);
+            ->whereJsonContains('roles', 'agent')
+            ->first();
 
         if (! $agent) {
             return response()->json([
@@ -368,7 +368,7 @@ class AdminController extends Controller
      */
     public function listAgents()
     {
-        $agents = User::where('role', 'agent')
+        $agents = User::whereJsonContains('roles', 'agent')
             ->where('status', 'active')
             ->select('id', 'name', 'email', 'phone')
             ->get();
@@ -389,7 +389,7 @@ class AdminController extends Controller
         ]);
 
         $agent = User::where('id', $validated['agent_id'])
-            ->where('role', 'agent')
+            ->whereJsonContains('roles', 'agent')
             ->first();
 
         if (!$agent) {
@@ -441,7 +441,7 @@ class AdminController extends Controller
         $propRequest = PropertyRequest::findOrFail($id);
 
         $agent = User::where('id', $request->agent_id)
-            ->where('role', 'agent')
+            ->whereJsonContains('roles', 'agent')
             ->first();
 
         if (!$agent) {

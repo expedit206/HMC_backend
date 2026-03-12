@@ -640,4 +640,60 @@ class BailleurController extends Controller
             'message' => 'La demande de publication a été supprimée.'
         ]);
     }
+
+    /**
+     * Confirmer la présence à l'audit terrain
+     * POST /api/bailleur/publication-requests/{id}/confirm-audit
+     */
+    public function confirmAudit(Request $request, int $id)
+    {
+        $user = $request->user();
+        $propertyRequest = PropertyRequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        if (!$propertyRequest->scheduled_at) {
+            return response()->json(['success' => false, 'message' => "Aucun audit n'est programmé pour cette demande."], 400);
+        }
+
+        $propertyRequest->update([
+            'bailleur_confirmed_at' => now(),
+            'bailleur_declined_at' => null,
+            'bailleur_notes' => $request->notes,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Rendez-vous d'audit confirmé avec succès.",
+            'data' => $propertyRequest->fresh(['agent'])
+        ]);
+    }
+
+    /**
+     * Décliner/Demander le report de l'audit terrain
+     * POST /api/bailleur/publication-requests/{id}/decline-audit
+     */
+    public function declineAudit(Request $request, int $id)
+    {
+        $user = $request->user();
+        $propertyRequest = PropertyRequest::where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        if (!$propertyRequest->scheduled_at) {
+            return response()->json(['success' => false, 'message' => "Aucun audit n'est programmé pour cette demande."], 400);
+        }
+
+        $propertyRequest->update([
+            'bailleur_confirmed_at' => null,
+            'bailleur_declined_at' => now(),
+            'bailleur_notes' => $request->notes,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Le report de l'audit a été demandé. L'agent sera notifié.",
+            'data' => $propertyRequest->fresh(['agent'])
+        ]);
+    }
 }

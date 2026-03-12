@@ -67,7 +67,7 @@ class HomeController extends Controller
             ]);
 
         // 2. Agents
-        $agents = User::where('role', 'agent')
+        $agents = User::whereJsonContains('roles', 'agent')
             ->take(4)
             ->get()
             ->map(function ($agent, $index) {

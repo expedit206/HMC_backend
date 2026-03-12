@@ -135,6 +135,8 @@ Route::middleware('auth:sanctum')->group(function (): void {
         Route::post('/publication-requests', [BailleurController::class, 'submitPublicationRequest']);
         Route::put('/publication-requests/{id}', [BailleurController::class, 'updatePublicationRequest']);
         Route::delete('/publication-requests/{id}', [BailleurController::class, 'deletePublicationRequest']);
+        Route::post('/publication-requests/{id}/confirm-audit', [BailleurController::class, 'confirmAudit']);
+        Route::post('/publication-requests/{id}/decline-audit', [BailleurController::class, 'declineAudit']);
     });
 
     // ════════════════════════════════════════════════════════════════════════

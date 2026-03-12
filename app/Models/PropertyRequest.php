@@ -14,6 +14,9 @@ class PropertyRequest extends Model
         'visited_at' => 'datetime',
         'scheduled_at' => 'datetime',
         'published_at' => 'datetime',
+        'bailleur_confirmed_at' => 'datetime',
+        'bailleur_declined_at' => 'datetime',
+        'bailleur_suggested_at' => 'datetime',
     ];
 
     /** Bailleur who requested the publication */
