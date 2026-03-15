@@ -15,7 +15,7 @@ class Property extends Model
 
     protected $casts = [
         'price'     => 'decimal:2',
-        'area'      => 'decimal:2',
+        'area'      => 'integer',
         'amenities' => 'array',
         'features'  => 'array',
     ];
@@ -98,6 +98,11 @@ class Property extends Model
     public function rentals()
     {
         return $this->hasMany(Rental::class);
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(PropertyReview::class)->where('status', 'approved');
     }
 
     // ─── Helpers ──────────────────────────────────────────────────────────────

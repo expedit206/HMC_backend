@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Notification;
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
@@ -23,21 +25,24 @@ class AuthController extends Controller
         ]);
 
         $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
+            'name'     => $request->name,
+            'email'    => $request->email,
             'password' => Hash::make($request->password),
-            'role' => $request->role,
-            'phone' => $request->phone,
-            'status' => 'active',
+            'role'     => $request->role,
+            'phone'    => $request->phone,
+            'status'   => 'active',
         ]);
+
+        // ── Notification de bienvenue ──
+        NotificationService::welcome($user->id, $user->name);
 
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'success' => true,
             'message' => 'Inscription réussie',
-            'data' => [
-                'user' => $user,
+            'data'    => [
+                'user'  => $user,
                 'token' => $token,
             ],
         ], 201);
@@ -89,11 +94,12 @@ class AuthController extends Controller
 
     public function user(Request $request)
     {
-        // @dd($request->user());
-        
+        $user = $request->user();
+        $unreadCount = Notification::where('user_id', $user->id)->where('is_read', false)->count();
+
         return response()->json([
             'success' => true,
-            'data' => $request->user(),
+            'data'    => array_merge($user->toArray(), ['notifications_unread' => $unreadCount]),
         ]);
     }
 }

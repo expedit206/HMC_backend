@@ -40,6 +40,7 @@ class User extends Authenticatable
         'city',
         'bio',
         'status',
+        'availabilities',
     ];
 
     /**
@@ -61,6 +62,7 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
         'roles' => 'array',
+        'availabilities' => 'array',
     ];
 
     protected $appends = ['avatar_url'];

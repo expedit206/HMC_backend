@@ -6,6 +6,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Property;
+use App\Models\PropertyReview;
 use App\Models\RentalApplication;
 use App\Models\Visit;
 use Illuminate\Http\Request;
@@ -20,6 +21,8 @@ class PropertyController extends Controller
     public function index(Request $request)
     {
         $query = Property::with(['owner:id,name,avatar', 'primaryImage'])
+            ->withAvg(['reviews as reviews_avg_rating' => fn($q) => $q->where('status', 'approved')], 'rating')
+            ->withCount(['reviews as reviews_count' => fn($q) => $q->where('status', 'approved')])
             ->where('status', 'active');
 
         // Filters
@@ -118,14 +121,14 @@ class PropertyController extends Controller
             $primaryImage = $p->primaryImage;
             if ($primaryImage) {
                 $path = $primaryImage->path;
-                // Si c'est déjà une URL absolue (Unsplash etc.), on la garde
                 $p->image = str_starts_with($path, 'http') ? $path : asset('storage/' . $path);
             } else {
                 $p->image = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?auto=format&fit=crop&q=80&w=800';
             }
-            $p->rooms = $p->bedrooms ?? 0;
-            $p->owner = $p->owner;
-            $p->is_favorite = in_array($p->id, $favoriteIds);
+            $p->rooms        = $p->bedrooms ?? 0;
+            $p->avg_rating   = round((float) ($p->reviews_avg_rating ?? 0), 1);
+            $p->review_count = (int) ($p->reviews_count ?? 0);
+            $p->is_favorite  = in_array($p->id, $favoriteIds);
             $p->my_rental_process = self::buildRentalProcess(
                 $activeVisits->get($p->id),
                 $activeApplications->get($p->id),
@@ -133,6 +136,7 @@ class PropertyController extends Controller
 
             return $p;
         });
+
 
         // Sidebar aggregates
         $baseQuery = Property::where('status', 'active');
@@ -243,10 +247,16 @@ class PropertyController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($slug)
+    public function show($identifier)
     {
         $property = Property::with(['owner:id,name,email,avatar,phone', 'images'])
-            ->where('slug', $slug)
+            ->where(function ($query) use ($identifier) {
+                if (is_numeric($identifier)) {
+                    $query->where('id', $identifier);
+                } else {
+                    $query->where('slug', $identifier);
+                }
+            })
             ->firstOrFail();
 
         $property->increment('views_count');
@@ -289,6 +299,22 @@ class PropertyController extends Controller
 
         $property->my_rental_process = self::buildRentalProcess($activeVisit, $activeApplication);
 
+        // Agrégats d'avis
+        $reviewStats = \App\Models\PropertyReview::where('property_id', $property->id)
+            ->where('status', 'approved')
+            ->selectRaw('
+                COUNT(*) as total,
+                ROUND(AVG(rating), 1) as average,
+                SUM(rating = 5) as five,
+                SUM(rating = 4) as four,
+                SUM(rating = 3) as three,
+                SUM(rating = 2) as two,
+                SUM(rating = 1) as one
+            ')
+            ->first();
+
+        $property->review_stats = $reviewStats;
+
         // Biens similaires ...
         $similar = Property::with(['primaryImage'])
             ->where('status', 'active')
@@ -314,7 +340,7 @@ class PropertyController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $property,
+            'data'    => $property,
             'similar' => $similar,
         ]);
     }

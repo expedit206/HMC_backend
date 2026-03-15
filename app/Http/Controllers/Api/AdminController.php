@@ -363,9 +363,6 @@ class AdminController extends Controller
         ]);
     }
 
-    /**
-     * List all users with 'agent' role
-     */
     public function listAgents()
     {
         $agents = User::whereJsonContains('roles', 'agent')
@@ -373,9 +370,54 @@ class AdminController extends Controller
             ->select('id', 'name', 'email', 'phone')
             ->get();
 
+        // Ajout du compteur des tâches en cours pour chaque agent (Visites + Biens assignés) pour un aperçu rapide
+        foreach ($agents as $agent) {
+            $agent->active_properties = Property::where('agent_id', $agent->id)->where('status', 'pending')->count();
+            $agent->upcoming_visits = Visit::where('agent_id', $agent->id)->where('scheduled_at', '>=', now())->count();
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $agents,
+        ]);
+    }
+
+    /**
+     * Voir l'agenda d'un agent spécifique (utilisé lors de l'assignation par l'admin)
+     */
+    public function agentAgenda($agentId)
+    {
+        $agent = User::whereJsonContains('roles', 'agent')->findOrFail($agentId);
+
+        $stats = [
+            'total_properties' => Property::where('agent_id', $agent->id)->count(),
+            'active_properties' => Property::where('agent_id', $agent->id)->where('status', 'in_progress')->count(),
+            'total_visits' => Visit::where('agent_id', $agent->id)->count(),
+            'upcoming_visits' => Visit::where('agent_id', $agent->id)->where('scheduled_at', '>=', now())->count(),
+        ];
+
+        // On récupère l'agenda (visites) de l'agent
+        $visits = Visit::with([
+            'property:id,title,city',
+            'visitor:id,name'
+        ])
+            ->where('agent_id', $agent->id)
+            ->where('scheduled_at', '>=', now()->subDays(30)) // Un mois en arrière pour la vue
+            ->orderBy('scheduled_at', 'asc')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data'    => [
+                'agent' => [
+                    'id' => $agent->id,
+                    'name' => $agent->name,
+                    'email' => $agent->email,
+                    'phone' => $agent->phone,
+                ],
+                'stats' => $stats,
+                'agenda' => $visits,
+            ],
         ]);
     }
 

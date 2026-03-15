@@ -14,6 +14,7 @@ class HomeController extends Controller
 {
     public function index()
     {
+
         // 0. Categories
         $categories = Property::selectRaw('category, count(*) as count')
             ->groupBy('category')

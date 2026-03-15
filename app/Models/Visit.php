@@ -11,7 +11,10 @@ class Visit extends Model
 {
     use HasFactory;
 
-    public const VISIT_FEE = 10;
+    public static function getVisitFee(): float
+    {
+        return (float) env('VISIT_FEE', 10);
+    }
 
     protected $guarded = ['id'];
 
