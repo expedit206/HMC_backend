@@ -10,6 +10,8 @@ use App\Models\Service;
 use App\Models\ServiceCategory;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\Paginator;
 
 class MarketplaceController extends Controller
 {
@@ -75,13 +77,25 @@ class MarketplaceController extends Controller
             ]);
         }
 
-        // Merge and sort if necessary, or just return both
-        // For the UI grid, it's better to merge them or provide separate arrays
+        // Merge and sort
         $allItems = $products->concat($services)->sortByDesc('id');
+
+        // Pagination manuelle
+        $perPage = (int) $request->query('per_page', 12);
+        $page = (int) $request->query('page', 1);
+        $offset = ($page - 1) * $perPage;
+
+        $paginatedItems = new LengthAwarePaginator(
+            $allItems->slice($offset, $perPage)->values(),
+            $allItems->count(),
+            $perPage,
+            $page,
+            ['path' => Paginator::resolveCurrentPath(), 'query' => $request->query()]
+        );
 
         return response()->json([
             'success' => true,
-            'data' => $allItems->values(),
+            'data' => $paginatedItems,
         ]);
     }
 

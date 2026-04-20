@@ -26,7 +26,8 @@ class FeedController extends Controller
 
         // ── 1. Biens immobiliers récents ─────────────────────────────────────
         $properties = Property::with(['primaryImage', 'images'])
-            ->withCount(['favorites'])
+            ->withCount(['favorites', 'reviews'])
+            ->withAvg('reviews', 'rating')
             ->latest()
             ->skip(($page - 1) * 2)
             ->take(2)
@@ -47,6 +48,8 @@ class FeedController extends Controller
                 'all_images'     => $p->images->map(fn ($img) => $img->path)->toArray(),
                 'favorites_count'=> $p->favorites_count ?? 0,
                 'shares_count'   => $p->shares_count ?? 0,
+                'rating'         => round((float)($p->reviews_avg_rating ?? 0), 1),
+                'review_count'   => $p->reviews_count ?? 0,
                 'date'           => $p->created_at?->diffForHumans() ?? 'Récemment',
                 'status'         => $p->status ?? 'available',
             ]);

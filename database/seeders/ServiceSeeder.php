@@ -22,154 +22,249 @@ class ServiceSeeder extends Seeder
             $categories = ServiceCategory::all();
         }
 
-        // 1. Defini 16 providers with real attributes
-        $cities = ['Douala', 'Yaoundé', 'Kribi', 'Bafoussam', 'Garoua', 'Limbe'];
-        $avatars = [
-            '/images/avatar/avatar1.webp',
-            '/images/avatar/avatar2.webp',
-            '/images/avatar/avatar3.webp',
-            '/images/img1.jpeg',
-            '/images/img2.jpeg',
-            '/images/img3.jpeg',
-            '/images/img4.jpeg',
-            '/images/img5.jpeg',
-            '/images/img6.jpeg',
-            '/images/tete1.jpeg',
+        // ─── PRESTATAIRES RÉALISTES (16) ───────────────────────────────────────
+        $providers = [
+            ['name' => 'Jean-Paul Kamga Talla',    'city' => 'Douala',    'specialty' => 'Plombier Sanitaire Certifié',         'cat' => 'Plomberie',      'price' => 15000, 'avatar' => 'https://i.pravatar.cc/150?img=5'],
+            ['name' => 'Saliou Bello Hamadou',     'city' => 'Yaoundé',   'specialty' => 'Électricien Bâtiment & Industriel',   'cat' => 'Électricité',    'price' => 20000, 'avatar' => 'https://i.pravatar.cc/150?img=6'],
+            ['name' => 'Moussa Ibrahim Waziri',    'city' => 'Garoua',    'specialty' => 'Technicien Froid & Clim',              'cat' => 'Climatisation',  'price' => 25000, 'avatar' => 'https://i.pravatar.cc/150?img=7'],
+            ['name' => 'Christian Tchakounté',     'city' => 'Douala',    'specialty' => 'Peintre Décorateur Intérieur',         'cat' => 'Peinture',       'price' => 18000, 'avatar' => 'https://i.pravatar.cc/150?img=8'],
+            ['name' => 'Fabrice Ndumbe Epée',      'city' => 'Douala',    'specialty' => 'Menuisier Aluminium & PVC',            'cat' => 'Menuiserie',     'price' => 22000, 'avatar' => 'https://i.pravatar.cc/150?img=9'],
+            ['name' => 'Erika Mbianda Nkolo',      'city' => 'Yaoundé',   'specialty' => 'Agent de Nettoyage Professionnel',     'cat' => 'Nettoyage',      'price' => 10000, 'avatar' => 'https://i.pravatar.cc/150?img=26'],
+            ['name' => 'Hervé Kotto Bonono',       'city' => 'Douala',    'specialty' => 'Maçon Finisseur & Carreleur',          'cat' => 'Maçonnerie',     'price' => 20000, 'avatar' => 'https://i.pravatar.cc/150?img=13'],
+            ['name' => 'Samuel Wandji Ngafou',     'city' => 'Bafoussam', 'specialty' => 'Électricien Réseau & Domotique',       'cat' => 'Électricité',    'price' => 25000, 'avatar' => 'https://i.pravatar.cc/150?img=15'],
+            ['name' => 'André Batum Ngapout',      'city' => 'Douala',    'specialty' => 'Plombier Sanitaire & Forage',          'cat' => 'Plomberie',      'price' => 18000, 'avatar' => 'https://i.pravatar.cc/150?img=17'],
+            ['name' => 'Gisèle Ngo Nouga',         'city' => 'Yaoundé',   'specialty' => 'Paysagiste & Jardinière Certifiée',    'cat' => 'Jardinage',      'price' => 12000, 'avatar' => 'https://i.pravatar.cc/150?img=31'],
+            ['name' => 'Blaise Tsafack Nguemo',    'city' => 'Bafoussam', 'specialty' => 'Technicien Clim & Réfrigération',      'cat' => 'Climatisation',  'price' => 30000, 'avatar' => 'https://i.pravatar.cc/150?img=18'],
+            ['name' => 'Raoul Nkoumou Biyogue',    'city' => 'Douala',    'specialty' => 'Peintre Décorateur Façades',           'cat' => 'Peinture',       'price' => 22000, 'avatar' => 'https://i.pravatar.cc/150?img=19'],
+            ['name' => 'Yasmine Abena Kollo',      'city' => 'Yaoundé',   'specialty' => 'Femme de Ménage & Organisation',       'cat' => 'Nettoyage',      'price' => 8000,  'avatar' => 'https://i.pravatar.cc/150?img=32'],
+            ['name' => 'Eric Mvondo Ateba',        'city' => 'Douala',    'specialty' => 'Maçon Spécialiste Piscines',           'cat' => 'Maçonnerie',     'price' => 35000, 'avatar' => 'https://i.pravatar.cc/150?img=20'],
+            ['name' => 'Didier Fotso Taboh',       'city' => 'Bafoussam', 'specialty' => 'Menuisier Bois Massif & Sculpture',    'cat' => 'Menuiserie',     'price' => 28000, 'avatar' => 'https://i.pravatar.cc/150?img=22'],
+            ['name' => 'Patrick Edouard Nkoa',     'city' => 'Douala',    'specialty' => 'Électricien Solaire & Photovoltaïque', 'cat' => 'Électricité',    'price' => 40000, 'avatar' => 'https://i.pravatar.cc/150?img=23'],
         ];
 
-        $specialties = [
-            'Plombier Sanitaire',
-            'Électricien Bâtiment',
-            'Peintre Décorateur',
-            'Technicien Froid',
-            'Menuisier Aluminium',
-            'Electronicien',
-            'Mécanicien Automobile',
-            'Informaticien Réseau',
-            'Serrurier Coffre-fort',
-            'Maçon Finisseur',
-            'Platrier',
-            'Carreleur Expert',
-            'Jardinier Paysagiste',
-            'Agent de Sécurité Électronique',
-            'Soudeur Industriel',
-            'Couturier Professionnel'
-        ];
+        $providerUsers = [];
 
-        $names = [
-            'Jean-Paul Kamga',
-            'Saliou Bello',
-            'Moussa Ibrahim',
-            'Christian Tchakounté',
-            'Fabrice Ndumbe',
-            'Erika Mbianda',
-            'Hervé Kotto',
-            'Samuel Wandji',
-            'André Batum',
-            'Gisèle Ngo Nouga',
-            'Blaise Tsafack',
-            'Raoul Nkoumou',
-            'Yasmine Abena',
-            'Eric Mvondo',
-            'Didier Fotso',
-            'Patrick Edouard'
-        ];
-
-        $providers = [];
-
-        for ($i = 0; $i < 16; $i++) {
-            $city = $cities[$i % count($cities)];
-            $name = $names[$i];
-            $specialty = $specialties[$i];
-            $avatar = $avatars[$i % count($avatars)];
-            $email = Str::slug($name) . '@prestataire.cm';
+        foreach ($providers as $i => $data) {
+            $email = Str::slug($data['name']) . '@prestataire.cm';
+            $cat   = $categories->firstWhere('name', $data['cat']) ?? $categories->first();
 
             $user = User::updateOrCreate(
                 ['email' => $email],
                 [
-                    'name' => $name,
-                    'password' => bcrypt('password'),
-                    'role' => 'prestataire',
-                    'roles' => ['prestataire'],
-                    'city' => $city,
-                    'status' => 'active',
-                    'phone' => '2376' . rand(10000000, 99999999),
-                    'avatar_url' => $avatar,
-                    'bio' => "Professionnel certifié en {$specialty} basé à {$city}. Plus de 5 ans d'expérience dans le domaine avec des interventions de qualité garanties.",
+                    'name'              => $data['name'],
+                    'password'          => bcrypt('password'),
+                    'role'              => 'prestataire',
+                    'roles'             => ['prestataire'],
+                    'city'              => $data['city'],
+                    'status'            => 'active',
+                    'email_verified_at' => now(),
+                    'phone'             => '+2376' . str_pad((string) ($i * 1117 + 99000000), 8, '0', STR_PAD_LEFT),
+                    'avatar'            => $data['avatar'],
+                    'bio'               => "Professionnel certifié en {$data['specialty']} basé à {$data['city']}. Plus de 5 ans d'expérience. Interventions rapides, résultats garantis.",
                 ]
             );
-            $providers[] = $user;
+            $providerUsers[] = $user;
 
-            // Give each provider 2-3 services
-            $randomCats = $categories->random(rand(2, 3));
-            foreach ($randomCats as $cat) {
-                Service::updateOrCreate(
-                    ['provider_id' => $user->id, 'category_id' => $cat->id],
-                    [
-                        'title' => "Service de {$cat->name} Professionnel",
-                        'description' => "Intervention rapide pour tout besoin en {$cat->name}. Qualité certifiée HMC.",
-                        'base_price' => rand(5, 45) * 1000,
-                        'status' => 'active',
-                    ]
-                );
-            }
+            // Service principal lié à la spécialité
+            Service::updateOrCreate(
+                ['provider_id' => $user->id, 'category_id' => $cat->id],
+                [
+                    'title'       => $data['specialty'],
+                    'description' => "Expert en {$data['specialty']} à {$data['city']}. Intervention sous 24h pour toute urgence sur vos biens immobiliers. Devis gratuit.",
+                    'base_price'  => $data['price'],
+                    'status'      => 'active',
+                ]
+            );
+
+            // 1 service secondaire dans une catégorie connexe
+            $secondaryCat = $categories->where('id', '!=', $cat->id)->random();
+            Service::updateOrCreate(
+                ['provider_id' => $user->id, 'category_id' => $secondaryCat->id],
+                [
+                    'title'       => "Assistance {$secondaryCat->name} — {$data['city']}",
+                    'description' => "Service secondaire : {$secondaryCat->name} disponible en complément de mon activité principale.",
+                    'base_price'  => round($data['price'] * 0.8 / 1000) * 1000,
+                    'status'      => 'active',
+                ]
+            );
         }
 
-        // 2. Create some job board posts (Needs)
-        $clients = User::whereJsonContains('roles', 'locataire')->orWhere('role', 'locataire')->get();
-        if ($clients->isEmpty()) {
-            $clients = collect([User::first()]);
+        // ─── DEMANDES DE SERVICE (SERVICE POSTS) ───────────────────────────────
+        $clientUsers = User::whereIn('role', ['locataire', 'client'])->get();
+        if ($clientUsers->isEmpty()) {
+            $clientUsers = collect([User::first()]);
         }
 
-        $jobTitles = [
-            'Fuite d\'eau sous l\'évier',
-            'Installation d\'un nouveau climatiseur',
-            'Peinture complète salon 40m2',
-            'Serrure bloquée porte principale',
-            'Câblage réseau bureau à domicile',
-            'Remise aux normes tableau électrique',
-            'Débouchage canalisations cuisine',
-            'Réparation toiture (tuiles)',
-            'Installation caméra de surveillance',
-            'Montage meuble TV',
-            'Remplissage Gaz Clim auto',
-            'Vernissage portail bois',
+        $jobPosts = [
+            [
+                'title'       => 'Fuite d\'eau sous l\'évier de la cuisine',
+                'description' => 'Robinet de cuisine qui fuit depuis 3 jours. Beaucoup de gaspillage, j\'ai besoin d\'un plombier urgent à Bonapriso ce weekend.',
+                'city'        => 'Douala',
+                'neighborhood'=> 'Bonapriso',
+                'cat'         => 'Plomberie',
+                'min_budget'  => 10000,
+                'max_budget'  => 25000,
+                'urgency'     => 'high',
+            ],
+            [
+                'title'       => 'Installation d\'un nouveau climatiseur Split 12000 BTU',
+                'description' => 'Je viens d\'acheter un clim Midea 12000 BTU sur HMC Market. Besoin d\'un technicien pour l\'installation et la mise en service dans ma chambre.',
+                'city'        => 'Yaoundé',
+                'neighborhood'=> 'Bastos',
+                'cat'         => 'Climatisation',
+                'min_budget'  => 20000,
+                'max_budget'  => 40000,
+                'urgency'     => 'medium',
+            ],
+            [
+                'title'       => 'Peinture complète salon + 2 chambres',
+                'description' => 'Besoin de repeindre un appartement F3 de 90m² à Makepe. Peinture blanche pour le salon et couleur au choix pour les chambres. Inclure le matériel.',
+                'city'        => 'Douala',
+                'neighborhood'=> 'Makepe',
+                'cat'         => 'Peinture',
+                'min_budget'  => 80000,
+                'max_budget'  => 150000,
+                'urgency'     => 'low',
+            ],
+            [
+                'title'       => 'Serrure bloquée — porte principale',
+                'description' => 'La serrure de ma porte d\'entrée est bloquée depuis ce matin. Je suis coincé dehors ! Urgent, Bastos Yaoundé.',
+                'city'        => 'Yaoundé',
+                'neighborhood'=> 'Bastos',
+                'cat'         => 'Menuiserie',
+                'min_budget'  => 15000,
+                'max_budget'  => 35000,
+                'urgency'     => 'high',
+            ],
+            [
+                'title'       => 'Tableau électrique à remettre aux normes',
+                'description' => 'Mon tableau électrique est vieux et présente des risques. Besoin d\'un électricien certifié pour remise aux normes complète et ajout de disjoncteurs.',
+                'city'        => 'Douala',
+                'neighborhood'=> 'Bonanjo',
+                'cat'         => 'Électricité',
+                'min_budget'  => 50000,
+                'max_budget'  => 120000,
+                'urgency'     => 'medium',
+            ],
+            [
+                'title'       => 'Débouchage canalisations (WC + cuisine)',
+                'description' => 'WC bouché depuis ce matin, impossible d\'utiliser les toilettes. Intervention urgente nécessaire à Omnisport.',
+                'city'        => 'Yaoundé',
+                'neighborhood'=> 'Omnisports',
+                'cat'         => 'Plomberie',
+                'min_budget'  => 10000,
+                'max_budget'  => 20000,
+                'urgency'     => 'high',
+            ],
+            [
+                'title'       => 'Nettoyage complet appartement avant état des lieux',
+                'description' => 'Je rends mon appartement F3 à Biyem-Assi vendredi. Besoin d\'une équipe pour nettoyage complet, vitres, salle de bain et cuisine.',
+                'city'        => 'Yaoundé',
+                'neighborhood'=> 'Biyem-Assi',
+                'cat'         => 'Nettoyage',
+                'min_budget'  => 20000,
+                'max_budget'  => 45000,
+                'urgency'     => 'medium',
+            ],
+            [
+                'title'       => 'Jardin à entretenir mensuellement — Villa Garoua',
+                'description' => 'Villa à Garoua avec grand jardin de 500m². Besoin d\'un jardinier mensuel : tonte, taille haies, arrosage et entretien allées.',
+                'city'        => 'Garoua',
+                'neighborhood'=> 'Centre-ville',
+                'cat'         => 'Jardinage',
+                'min_budget'  => 15000,
+                'max_budget'  => 30000,
+                'urgency'     => 'low',
+            ],
+            [
+                'title'       => 'Réparation toiture — infiltrations eau de pluie',
+                'description' => 'Infiltrations d\'eau importantes dans la chambre depuis les dernières pluies. Toiture en tôle à réparer, environ 3m² concernés à Logbaba.',
+                'city'        => 'Douala',
+                'neighborhood'=> 'Logbaba',
+                'cat'         => 'Maçonnerie',
+                'min_budget'  => 30000,
+                'max_budget'  => 80000,
+                'urgency'     => 'high',
+            ],
+            [
+                'title'       => 'Pose carrelage salle de bain 8m²',
+                'description' => 'Salle de bain à carreler suite à rénovation. 8m² de sol + murs jusqu\'à 1m50. Carrelage déjà acheté. Main-d\'œuvre uniquement à Bafoussam.',
+                'city'        => 'Bafoussam',
+                'neighborhood'=> 'Tamdja',
+                'cat'         => 'Maçonnerie',
+                'min_budget'  => 40000,
+                'max_budget'  => 70000,
+                'urgency'     => 'low',
+            ],
+            [
+                'title'       => 'Montage et installation cuisine équipée',
+                'description' => 'Cuisine en kit achetée à assembler et installer. Inclut placards hauts, plan de travail, évier et robinetterie. Appartement Bali, Douala.',
+                'city'        => 'Douala',
+                'neighborhood'=> 'Bali',
+                'cat'         => 'Menuiserie',
+                'min_budget'  => 35000,
+                'max_budget'  => 65000,
+                'urgency'     => 'medium',
+            ],
+            [
+                'title'       => 'Entretien groupe électrogène 5KVA',
+                'description' => 'Groupe électrogène qui n\'arrive plus à démarrer après chaque coupure. Besoin d\'un technicien pour vérification complète et entretien à Limbe.',
+                'city'        => 'Limbe',
+                'neighborhood'=> 'Down Beach',
+                'cat'         => 'Électricité',
+                'min_budget'  => 15000,
+                'max_budget'  => 40000,
+                'urgency'     => 'medium',
+            ],
         ];
 
-        foreach ($jobTitles as $index => $title) {
-            $client = $clients->random();
-            $cat = $categories->random();
-            $city = $cities[array_rand($cities)];
+        foreach ($jobPosts as $index => $jobData) {
+            $client       = $clientUsers->random();
+            $cat          = $categories->firstWhere('name', $jobData['cat']) ?? $categories->first();
 
             $post = ServicePost::create([
-                'client_id' => $client->id,
-                'category_id' => $cat->id,
-                'title' => $title,
-                'description' => "J'ai besoin de toute urgence d'un professionnel pour : {$title}. Le travail est à effectuer au quartier " . ['Akwa', 'Bonapriso', 'Bastos', 'Santa Barbara'][rand(0, 3)] . ".",
-                'city' => $city,
-                'neighborhood' => ['Akwa', 'Bonapriso', 'Bastos', 'Mairie'][rand(0, 3)],
-                'min_budget' => rand(10, 20) * 1000,
-                'max_budget' => rand(25, 80) * 1000,
-                'urgency' => ['low', 'medium', 'high'][rand(0, 2)],
-                'status' => 'open',
-                'preferred_date' => now()->addDays(rand(1, 10)),
+                'client_id'      => $client->id,
+                'category_id'    => $cat->id,
+                'title'          => $jobData['title'],
+                'description'    => $jobData['description'],
+                'city'           => $jobData['city'],
+                'neighborhood'   => $jobData['neighborhood'],
+                'min_budget'     => $jobData['min_budget'],
+                'max_budget'     => $jobData['max_budget'],
+                'urgency'        => $jobData['urgency'],
+                'status'         => 'open',
+                'preferred_date' => now()->addDays(rand(1, 7)),
             ]);
 
-            // Add some responses for some posts (simulating bidding)
-            if ($index < 8) {
-                $numResponses = rand(1, 3);
-                $availableProviders = collect($providers);
-                for ($j = 0; $j < $numResponses; $j++) {
-                    $provider = $availableProviders->random();
+            // Réponses des prestataires (simulation de concurrence)
+            if ($index < 9) {
+                $numResponses = rand(1, 4);
+                $shuffled     = collect($providerUsers)->shuffle()->take($numResponses);
+                foreach ($shuffled as $provider) {
+                    $proposed = $jobData['max_budget'] - (rand(1, 4) * 2000);
                     ServicePostResponse::create([
-                        'post_id' => $post->id,
-                        'provider_id' => $provider->id,
-                        'message' => "Bonjour, je suis disponible pour cette intervention. Devis estimatif après constatations.",
-                        'proposed_price' => $post->max_budget - (rand(1, 5) * 1000),
-                        'status' => 'pending',
+                        'post_id'        => $post->id,
+                        'provider_id'    => $provider->id,
+                        'message'        => $this->getRandomResponse($provider->name, $jobData['title']),
+                        'proposed_price' => max($proposed, $jobData['min_budget']),
+                        'status'         => 'pending',
                     ]);
                 }
             }
         }
+
+        $this->command->info('✅ ' . count($providerUsers) . ' prestataires + ' . count($jobPosts) . ' demandes de service créés !');
+    }
+
+    private function getRandomResponse(string $name, string $jobTitle): string
+    {
+        $responses = [
+            "Bonjour, je suis {$name}, disponible pour cette intervention. Je peux intervenir dans les 24h. Devis définitif après constatation sur place.",
+            "Bonjour ! Expert dans ce type de travaux depuis plus de 5 ans. Matériel de qualité utilisé, garantie sur toutes mes interventions. Contactez-moi.",
+            "Disponible ce week-end pour : {$jobTitle}. Travail soigné et propre, je remets en état impeccable. Prix tout inclus, pas de surprise.",
+            "Professionnel certifié HMC, je prends en charge ce type d'intervention régulièrement. Références disponibles sur demande. Intervention rapide garantie.",
+        ];
+
+        return $responses[array_rand($responses)];
     }
 }

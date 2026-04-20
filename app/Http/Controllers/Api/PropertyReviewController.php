@@ -62,7 +62,7 @@ class PropertyReviewController extends Controller
         $validated = $request->validate([
             'rating'  => 'required|integer|min:1|max:5',
             'title'   => 'nullable|string|max:120',
-            'comment' => 'required|string|min:10|max:1000',
+            'comment' => 'required|string|max:1000',
         ]);
 
         $property = Property::where(function ($q) use ($identifier) {
