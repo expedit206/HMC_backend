@@ -85,6 +85,7 @@ class HomeController extends Controller
                 'bedrooms'       => $p->bedrooms ?? 0,
                 'rooms'          => $p->bedrooms ?? 0,
                 'bathrooms'      => $p->bathrooms ?? 0,
+                'available_at'       => $p->available_at ?? true,
                 'area'           => $p->area ?? 0,
                 'image'          => $p->primaryImage?->path ?? null,
                 'all_images'     => $p->images->map(fn($img) => $img->path)->toArray(),

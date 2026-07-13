@@ -45,6 +45,8 @@ class FeedController extends Controller
                 'bedrooms'       => $p->bedrooms ?? 0,
                 'bathrooms'      => $p->bathrooms ?? 0,
                 'rooms'          => (int) ($p->rooms ?? 0),
+                'available_at'       => $p->available_at ?? true,
+
                 'living_rooms'  => (int) ($p->living_rooms ?? 0),
                 'area'           => $p->area ?? 0,
                 'image'          => $p->primaryImage?->path ?? null,
