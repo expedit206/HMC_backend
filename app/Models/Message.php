@@ -12,11 +12,24 @@ class Message extends Model
         'sender_id',
         'content',
         'is_read',
+        'reply_to_id',
+        'is_pinned',
+        'edited_at',
     ];
 
     protected $casts = [
-        'is_read' => 'boolean',
+        'is_read'   => 'boolean',
+        'is_pinned' => 'boolean',
+        'edited_at' => 'datetime',
     ];
+
+    /**
+     * The message this message is replying to.
+     */
+    public function replyTo(): BelongsTo
+    {
+        return $this->belongsTo(Message::class, 'reply_to_id');
+    }
 
     /**
      * The conversation this message belongs to.

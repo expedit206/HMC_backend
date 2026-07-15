@@ -49,19 +49,80 @@ class ServiceSeeder extends Seeder
             $email = Str::slug($data['name']) . '@prestataire.cm';
             $cat   = $categories->firstWhere('name', $data['cat']) ?? $categories->first();
 
+            $catName = $data['cat'];
+            $neighborhoods = [
+                'Douala' => ['Bonapriso', 'Makepe', 'Akwa', 'Bali', 'Deido'],
+                'Yaoundé' => ['Bastos', 'Omnisports', 'Biyem-Assi', 'Mvan', 'Emana'],
+                'Bafoussam' => ['Tamdja', 'Djeleng', 'Mbouda'],
+                'Garoua' => ['Plateau', 'Yelwa', 'Lainde']
+            ];
+            $cityNbh = $neighborhoods[$data['city']] ?? ['Centre-ville'];
+            $nbh = $cityNbh[($i % count($cityNbh))];
+
+            $skillsMap = [
+                'Plomberie' => ["Dépannage de fuites", "Installation sanitaires", "Plomberie cuisine", "Raccordement ballon d'eau chaude", "Installation de tuyauteries"],
+                'Électricité' => ["Diagnostic de pannes", "Installation de prises & interrupteurs", "Mise aux normes électriques", "Installation tableau électrique", "Lumières & Éclairages LED"],
+                'Climatisation' => ["Pose climatiseur split", "Recharge de gaz climatiseur", "Nettoyage filtres & entretien", "Installation de systèmes de ventilation", "Dépannage compresseur"],
+                'Peinture' => ["Peinture murs & plafonds", "Préparation des surfaces (enduit)", "Peinture décorative", "Peinture extérieure (façades)", "Pose de papier peint"],
+                'Menuiserie' => ["Pose de portes & serrures", "Ajustement de fenêtres", "Menuiserie aluminium", "Rénovation meubles bois", "Montage de cuisine en kit"],
+                'Nettoyage' => ["Nettoyage de fin de chantier", "Lavage de vitres", "Nettoyage moquette & tapis", "Entretien ménager régulier", "Rangement & organisation"],
+                'Maçonnerie' => ["Pose de carrelage sol & mur", "Rénovation de murs", "Création de chapes en béton", "Maçonnerie extérieure", "Construction de clôtures"],
+                'Jardinage' => ["Tonte de pelouse", "Taille de haies & arbustes", "Plantation & aménagement", "Désherbage de massifs", "Systèmes d'arrosage automatique"]
+            ];
+            $skillsList = $skillsMap[$catName] ?? ["Intervention rapide", "Travail garanti", "Matériel fourni"];
+
+            $rating = 4.2 + (($i * 3 + 7) % 9) / 10;
+            $intCount = 12 + ($i * 7) % 80;
+
+            $provExperiences = [
+                [
+                    'title'       => $data['specialty'],
+                    'company'     => "Artisan Indépendant - " . $data['city'],
+                    'period'      => (2026 - $data['exp']) . " - Présent",
+                    'description' => "Interventions à domicile pour divers travaux de " . strtolower($catName) . " chez les particuliers et professionnels."
+                ],
+                [
+                    'title'       => "Technicien Junior",
+                    'company'     => "Cameroun Entreprises BTP",
+                    'period'      => (2026 - $data['exp'] - 3) . " - " . (2026 - $data['exp']),
+                    'description' => "Participation aux chantiers de construction de logements collectifs, pose et entretien."
+                ]
+            ];
+
+            $provEducation = [
+                [
+                    'degree' => "Brevet d'Études Professionnelles (BEP) en " . $catName,
+                    'school' => "Lycée Technique de " . $data['city'],
+                    'year'   => (string)(2026 - $data['exp'] - 4)
+                ],
+                [
+                    'degree' => "Certification Professionnelle Home Cameroon",
+                    'school' => "HMC Academy",
+                    'year'   => "2025"
+                ]
+            ];
+
             $user = User::updateOrCreate(
                 ['email' => $email],
                 [
-                    'name'              => $data['name'],
-                    'password'          => bcrypt('password'),
-                    'role'              => 'prestataire',
-                    'roles'             => ['prestataire'],
-                    'city'              => $data['city'],
-                    'status'            => 'active',
-                    'email_verified_at' => now(),
-                    'phone'             => '+2376' . str_pad((string) ($i * 1117 + 99000000), 8, '0', STR_PAD_LEFT),
-                    'avatar'            => $data['avatar'],
-                    'bio'               => "Professionnel certifié en {$data['specialty']} basé à {$data['city']}. Plus de 5 ans d'expérience. Interventions rapides, résultats garantis.",
+                    'name'                 => $data['name'],
+                    'password'             => bcrypt('password'),
+                    'role'                 => 'prestataire',
+                    'roles'                => ['prestataire'],
+                    'city'                 => $data['city'],
+                    'neighborhood'         => $nbh,
+                    'status'               => 'active',
+                    'email_verified_at'    => now(),
+                    'phone'                => '+2376' . str_pad((string) ($i * 1117 + 99000000), 8, '0', STR_PAD_LEFT),
+                    'avatar'               => $data['avatar'],
+                    'headline'             => $data['specialty'] . " à " . $data['city'],
+                    'provider_since'       => now()->subYears($data['exp']),
+                    'rating'               => $rating,
+                    'total_interventions'  => $intCount,
+                    'skills'               => $skillsList,
+                    'provider_experiences' => $provExperiences,
+                    'provider_education'   => $provEducation,
+                    'bio'                  => "Professionnel certifié en {$data['specialty']} basé à {$data['city']}. Plus de {$data['exp']} ans d'expérience. Interventions rapides, résultats garantis.",
                 ]
             );
             $providerUsers[] = $user;

@@ -41,7 +41,15 @@ class User extends Authenticatable
         'roles',
         'avatar',
         'city',
+        'neighborhood',
         'bio',
+        'headline',
+        'provider_since',
+        'rating',
+        'total_interventions',
+        'skills',
+        'provider_experiences',
+        'provider_education',
         'status',
         'availabilities',
     ];
@@ -62,10 +70,15 @@ class User extends Authenticatable
      * @var array<string, string>
      */
     protected $casts = [
-        'email_verified_at' => 'datetime',
-        'password' => 'hashed',
-        'roles' => 'array',
-        'availabilities' => 'array',
+        'email_verified_at'    => 'datetime',
+        'password'             => 'hashed',
+        'roles'                => 'array',
+        'availabilities'       => 'array',
+        'skills'               => 'array',
+        'provider_experiences' => 'array',
+        'provider_education'   => 'array',
+        'provider_since'       => 'date',
+        'rating'               => 'decimal:2',
     ];
 
     protected $appends = ['avatar_url'];

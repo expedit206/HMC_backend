@@ -310,8 +310,12 @@ Route::middleware('auth:sanctum')->group(function (): void {
     // ── Chat / Messagerie ───────────────────────────────────────────────────
     Route::group(['prefix' => 'chat'], function (): void {
         Route::get('/conversations', [App\Http\Controllers\Api\ChatController::class, 'index']);
+        Route::post('/conversations/start', [App\Http\Controllers\Api\ChatController::class, 'startOrGet']);
         Route::get('/conversations/{id}', [App\Http\Controllers\Api\ChatController::class, 'show']);
         Route::post('/conversations/{id}/messages', [App\Http\Controllers\Api\ChatController::class, 'sendMessage']);
         Route::post('/conversations/{id}/read', [App\Http\Controllers\Api\ChatController::class, 'markAsRead']);
+        Route::patch('/messages/{id}', [App\Http\Controllers\Api\ChatController::class, 'updateMessage']);
+        Route::delete('/messages/{id}', [App\Http\Controllers\Api\ChatController::class, 'deleteMessage']);
+        Route::post('/messages/{id}/pin', [App\Http\Controllers\Api\ChatController::class, 'pinMessage']);
     });
 });
