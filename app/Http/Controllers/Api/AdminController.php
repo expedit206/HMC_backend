@@ -502,4 +502,87 @@ class AdminController extends Controller
             'data'    => $propRequest->load(['bailleur', 'agent']),
         ]);
     }
+
+    /**
+     * Liste des tickets / interventions avec support de litige et d'arbitrage
+     * GET /api/admin/tickets
+     */
+    public function listTickets(Request $request): JsonResponse
+    {
+        $query = Intervention::with([
+            'requester:id,name,email,phone,avatar',
+            'service:id,title,base_price,provider_id,category_id',
+            'service.provider:id,name,email,phone,avatar',
+            'property:id,title,city',
+        ]);
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->filled('disputed_only') && $request->disputed_only === 'true') {
+            $query->where(function ($q) {
+                $q->whereNotNull('dispute_reason')
+                  ->orWhereNotNull('arbitration_winner')
+                  ->orWhere('status', 'rejected');
+            });
+        }
+
+        $tickets = $query->latest()->paginate(20);
+
+        return response()->json([
+            'success' => true,
+            'data'    => $tickets,
+        ]);
+    }
+
+    /**
+     * Arbitrer / Départager manuellement les deux parties sur un ticket / intervention
+     * POST /api/admin/tickets/{id}/arbitrate
+     */
+    public function arbitrateTicket(Request $request, int $id): JsonResponse
+    {
+        $request->validate([
+            'arbitration_winner' => 'required|in:requester,provider,split,cancelled',
+            'arbitration_notes'  => 'required|string|max:1000',
+            'final_status'       => 'nullable|in:completed,rejected,accepted,pending',
+        ]);
+
+        $intervention = Intervention::with([
+            'requester:id,name,email',
+            'service.provider:id,name,email'
+        ])->findOrFail($id);
+
+        $winnerMap = [
+            'requester' => 'Tranché en faveur du Demandeur',
+            'provider'  => 'Tranché en faveur du Prestataire',
+            'split'     => 'Accord 50/50 entre les deux parties',
+            'cancelled' => 'Intervention annulée et remboursée',
+        ];
+
+        $finalStatus = $request->input('final_status', match($request->arbitration_winner) {
+            'requester', 'provider', 'split' => 'completed',
+            'cancelled' => 'rejected',
+            default => 'completed',
+        });
+
+        $intervention->update([
+            'arbitration_winner' => $request->arbitration_winner,
+            'arbitration_notes'  => $request->arbitration_notes,
+            'arbitrated_by'      => $request->user()->id,
+            'arbitrated_at'      => now(),
+            'status'             => $finalStatus,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Décision d\'arbitrage enregistrée avec succès. ' . ($winnerMap[$request->arbitration_winner] ?? ''),
+            'data'    => $intervention->fresh([
+                'requester:id,name,email,phone',
+                'service.provider:id,name,email,phone',
+                'property:id,title'
+            ]),
+        ]);
+    }
 }
+

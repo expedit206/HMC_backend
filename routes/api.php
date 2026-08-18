@@ -280,6 +280,10 @@ Route::middleware('auth:sanctum')->group(function (): void {
         // — Gestion des demandes de publication
         Route::get('/publication-requests',              [AdminController::class, 'listPublicationRequests']);
         Route::post('/publication-requests/{id}/assign', [AdminController::class, 'assignAgentToPublicationRequest']);
+
+        // — Gestion et arbitrage des tickets / interventions (Litiges entre parties)
+        Route::get('/tickets',                 [AdminController::class, 'listTickets']);
+        Route::post('/tickets/{id}/arbitrate', [AdminController::class, 'arbitrateTicket']);
     });
 
     // ── Marketplace (Protected) ──────────────────────────────────────────────
